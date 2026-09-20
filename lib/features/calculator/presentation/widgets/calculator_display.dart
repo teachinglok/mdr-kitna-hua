@@ -14,7 +14,7 @@ class CalculatorDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(
@@ -31,14 +31,24 @@ class CalculatorDisplay extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            expression,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+          SizedBox(
+            width: double.infinity,
+            height: 32,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              child: Text(
+                expression.isEmpty ? '0' : expression,
+                maxLines: 1,
+                softWrap: false,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant,
+                ),
+              ),
             ),
           ),
 
