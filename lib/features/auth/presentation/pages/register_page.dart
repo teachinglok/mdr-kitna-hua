@@ -51,9 +51,12 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _otpRequested = true;
       _otpVerified = false;
+      _otpController.clear();
     });
 
-    _showMessage('OTP verification will be connected later.');
+    // TODO: TESTING ONLY
+    // Real email OTP verification will be connected with backend later.
+    _showMessage('Dummy OTP sent. Use 123456 for testing.');
   }
 
   void _register() {
@@ -69,11 +72,13 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (!_otpVerified) {
-      _showMessage('Please enter and verify the OTP.');
+      _showMessage('Please enter the correct OTP.');
       return;
     }
 
-    _showMessage('Registration will be connected to the backend later.');
+    // TODO: TESTING ONLY
+    // Later this will be replaced by successful backend registration.
+    Navigator.of(context).pop(true);
   }
 
   void _continueWithGoogle() {
@@ -123,17 +128,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 12),
                       Text(
                         'Create your account',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium,
+                        style: Theme.of(context).textTheme.headlineMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Set up your business profile to get started.',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -218,17 +219,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     Icons.lock_outline_rounded,
                   ),
                   onChanged: (value) {
-                    if (_otpVerified) {
-                      setState(() {
-                        _otpVerified = false;
-                      });
-                    }
-
-                    if (value.length == 6) {
-                      setState(() {
-                        _otpVerified = true;
-                      });
-                    }
+                    setState(() {
+                      // TODO: TESTING ONLY
+                      // Dummy OTP is 123456.
+                      _otpVerified = value == '123456';
+                    });
                   },
                 ),
 
@@ -263,10 +258,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       child: Text(
                         'OR',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -289,9 +281,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Text(
                     'By continuing, you agree to use MDR Kitna Hua '
                         'for legitimate business payment calculations.',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall,
                     textAlign: TextAlign.center,
                   ),
                 ),

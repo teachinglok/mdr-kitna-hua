@@ -22,23 +22,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
       title: 'Know What to Collect',
       description: 'Enter the amount you want to receive from your customer.',
       icon: Icons.account_balance_wallet_outlined,
-      backgroundColor: const Color(0xFF1A2A6C),
-      iconColor: const Color(0xFFD4AF37),
+      backgroundColor: Color(0xFF1A2A6C),
+      iconColor: Color(0xFFD4AF37),
     ),
     OnboardingSlide(
       title: 'Calculate Like a Calculator',
       description:
-          'Add, subtract, multiply or divide before calculating the payment amount.',
+      'Add, subtract, multiply or divide before calculating the payment amount.',
       icon: Icons.calculate_outlined,
-      backgroundColor: const Color(0xFF6C63FF),
+      backgroundColor: Color(0xFF6C63FF),
       iconColor: Colors.white,
     ),
     OnboardingSlide(
       title: 'Avoid Payment Shortfall',
       description:
-          'Calculate the customer payment amount with applicable charges and rounding.',
+      'Calculate the customer payment amount with applicable charges and rounding.',
       icon: Icons.verified_outlined,
-      backgroundColor: const Color(0xFF10B981),
+      backgroundColor: Color(0xFF10B981),
       iconColor: Colors.white,
     ),
   ];
@@ -49,7 +49,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentIndex == 0) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -59,11 +59,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
 
     if (_currentIndex == 1) {
-      Navigator.of(context).push(
+      final bool? registered = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
           builder: (context) => const RegisterPage(),
         ),
       );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (registered == true) {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+
       return;
     }
 
@@ -113,7 +125,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _nextPage,
-                    child: Text(isLastPage ? 'GET STARTED' : 'NEXT'),
+                    child: Text(
+                      isLastPage ? 'GET STARTED' : 'NEXT',
+                    ),
                   ),
                 ),
               ),
