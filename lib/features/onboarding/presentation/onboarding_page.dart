@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../auth/presentation/pages/register_page.dart';
 import '../../calculator/presentation/pages/calculator_page.dart';
 import 'widgets/onboarding_indicator.dart';
 import 'widgets/onboarding_slide.dart';
@@ -49,16 +50,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _nextPage() {
-    if (_currentIndex < _slides.length - 1) {
+    if (_currentIndex == 0) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const CalculatorPage()),
-      );
+      return;
     }
+
+    if (_currentIndex == 1) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const RegisterPage(),
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const CalculatorPage(),
+      ),
+    );
   }
 
   @override
