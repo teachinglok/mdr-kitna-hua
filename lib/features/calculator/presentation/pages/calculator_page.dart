@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../qr/presentation/pages/qr_payment_page.dart';
 import '../../domain/services/calculator_service.dart';
 import '../../domain/services/mdr_calculator_service.dart';
 import '../widgets/calculator_display.dart';
@@ -13,18 +14,23 @@ class CalculatorPage extends StatefulWidget {
 }
 
 class _CalculatorPageState extends State<CalculatorPage> {
-  final CalculatorService _calculatorService = const CalculatorService();
+  final CalculatorService _calculatorService =
+  const CalculatorService();
+
   final MdrCalculatorService _mdrCalculatorService =
   const MdrCalculatorService();
 
   String _expression = '';
   String _displayResult = '₹0';
 
+  double _customerPayableAmount = 0;
+
   void _handleButtonPressed(String value) {
     setState(() {
       if (value == 'CLEAR') {
         _expression = '';
         _displayResult = '₹0';
+        _customerPayableAmount = 0;
         return;
       }
 
@@ -58,14 +64,41 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
     if (finalAmount <= 0) {
       _displayResult = '₹0';
+      _customerPayableAmount = 0;
       return;
     }
 
     final result =
     _mdrCalculatorService.calculate(finalAmount);
 
+    _customerPayableAmount = result.customerPayable;
+
     _displayResult =
     '₹${_formatResult(result.customerPayable)}';
+  }
+
+  void _openQrPaymentPage() {
+    if (_customerPayableAmount <= 0) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Please calculate the amount first.',
+            ),
+          ),
+        );
+
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => QrPaymentPage(
+          amount: _customerPayableAmount,
+        ),
+      ),
+    );
   }
 
   String _formatResult(double value) {
@@ -92,6 +125,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
             Expanded(
               child: CalculatorKeyboard(
                 onButtonPressed: _handleButtonPressed,
+                onQrPressed: _openQrPaymentPage,
               ),
             ),
           ],
