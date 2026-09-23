@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../auth/presentation/pages/register_page.dart';
 import '../../calculator/presentation/pages/calculator_page.dart';
@@ -20,7 +21,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<OnboardingSlide> _slides = const [
     OnboardingSlide(
       title: 'Know What to Collect',
-      description: 'Enter the amount you want to receive from your customer.',
+      description:
+      'Enter the amount you want to receive from your customer.',
       icon: Icons.account_balance_wallet_outlined,
       backgroundColor: Color(0xFF1A2A6C),
       iconColor: Color(0xFFD4AF37),
@@ -49,90 +51,102 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
-  Future<void> _nextPage() async {
-    if (_currentIndex == 0) {
+  void _nextPage() {
+    if (_currentIndex < _slides.length) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  void _openCalculator() {
+    if (!mounted) {
       return;
     }
 
-    if (_currentIndex == 1) {
-      final bool? registered = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(
-          builder: (context) => const RegisterPage(),
-        ),
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      if (registered == true) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-
-      return;
-    }
-
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => const CalculatorPage(),
       ),
+          (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isLastPage = _currentIndex == _slides.length - 1;
+    final bool isRegisterPage = _currentIndex == _slides.length;
 
-    return Scaffold(
-      body: Container(
-        color: _slides[_currentIndex].backgroundColor,
-        child: SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: isRegisterPage
+            ? const Color(0xFF1A2A6C)
+            : Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemStatusBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        body: Container(
+          color: isRegisterPage
+              ? const Color(0xFF1A2A6C)
+              : _slides[_currentIndex].backgroundColor,
           child: Column(
             children: [
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: _slides.length,
+                  itemCount: _slides.length + 1,
                   onPageChanged: (index) {
                     setState(() {
                       _currentIndex = index;
                     });
                   },
                   itemBuilder: (context, index) {
-                    return _slides[index];
+                    if (index == _slides.length) {
+                      return RegisterPage(
+                        onRegistered: _openCalculator,
+                      );
+                    }
+
+                    return SafeArea(
+                      child: _slides[index],
+                    );
                   },
                 ),
               ),
-
-              OnboardingIndicator(
-                currentIndex: _currentIndex,
-                itemCount: _slides.length,
-              ),
-
-              const SizedBox(height: 32),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _nextPage,
-                    child: Text(
-                      isLastPage ? 'GET STARTED' : 'NEXT',
-                    ),
+              if (!isRegisterPage) ...[
+                SafeArea(
+                  top: false,
+                  child: Column(
+                    children: [
+                      OnboardingIndicator(
+                        currentIndex: _currentIndex,
+                        itemCount: _slides.length,
+                      ),
+                      const SizedBox(height: 32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _nextPage,
+                            child: Text(
+                              _currentIndex == _slides.length - 1
+                                  ? 'CREATE ACCOUNT'
+                                  : 'NEXT',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 24),
+              ],
             ],
           ),
         ),

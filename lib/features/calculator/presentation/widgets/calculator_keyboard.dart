@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class CalculatorKeyboard extends StatelessWidget {
   final ValueChanged<String> onButtonPressed;
   final VoidCallback? onQrPressed;
+  final VoidCallback? onHomePressed;
+  final VoidCallback? onHistoryPressed;
 
   const CalculatorKeyboard({
     super.key,
     required this.onButtonPressed,
     this.onQrPressed,
+    this.onHomePressed,
+    this.onHistoryPressed,
   });
 
   @override
@@ -19,87 +23,28 @@ class CalculatorKeyboard extends StatelessWidget {
 
         final double horizontalPadding =
         availableWidth < 360 ? 8 : 12;
-
         final double verticalPadding =
-        availableHeight < 500 ? 6 : 10;
-
-        final double rowSpacing =
-        availableHeight < 500 ? 5 : 8;
-
-        final double usableHeight =
-            availableHeight -
-                (verticalPadding * 2) -
-                (rowSpacing * 7);
-
-        final double rowHeight =
-        (usableHeight / 8).clamp(38.0, 72.0);
+        availableHeight < 600 ? 6 : 10;
+        final double spacing =
+        availableHeight < 600 ? 5 : 8;
 
         return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            verticalPadding,
+            horizontalPadding,
+            0,
           ),
           child: Column(
             children: [
-              _buildStandardRow(
-                context,
-                ['AC', '(', ')'],
-                rowHeight,
+              Expanded(
+                child: _buildKeypad(
+                  context,
+                  spacing,
+                ),
               ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildStandardRow(
-                context,
-                ['7', '8', '9'],
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildStandardRow(
-                context,
-                ['4', '5', '6'],
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildStandardRow(
-                context,
-                ['1', '2', '3'],
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildStandardRow(
-                context,
-                ['0', '.', '⌫'],
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildStandardRow(
-                context,
-                ['×', '÷', '%'],
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildMinusPlusRow(
-                context,
-                rowHeight,
-              ),
-
-              SizedBox(height: rowSpacing),
-
-              _buildBottomRow(
-                context,
-                rowHeight,
-              ),
+              SizedBox(height: spacing),
+              _buildBottomNavigation(context),
             ],
           ),
         );
@@ -107,148 +52,217 @@ class CalculatorKeyboard extends StatelessWidget {
     );
   }
 
-  Widget _buildStandardRow(
+  Widget _buildKeypad(
       BuildContext context,
-      List<String> buttons,
-      double height,
+      double spacing,
       ) {
-    return SizedBox(
-      height: height,
-      child: Row(
-        children: buttons.map((label) {
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: _buildButton(
+    return Column(
+      children: [
+        // ROW 1
+        Expanded(
+          child: Row(
+            children: [
+              _buildOperatorCell(
                 context,
-                label,
-                height,
+                'AC',
+                isAc: true,
               ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+              SizedBox(width: spacing),
+              _buildOperatorCell(context, '÷'),
+              SizedBox(width: spacing),
+              _buildOperatorCell(context, '×'),
+              SizedBox(width: spacing),
+              _buildOperatorCell(context, '−'),
+            ],
+          ),
+        ),
 
-  Widget _buildMinusPlusRow(
-      BuildContext context,
-      double height,
-      ) {
-    return SizedBox(
-      height: height,
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: _buildButton(
-                context,
-                '−',
-                height,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: _buildButton(
-                context,
-                '+',
-                height,
-                isPrimary: true,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        SizedBox(height: spacing),
 
-  Widget _buildBottomRow(
-      BuildContext context,
-      double height,
-      ) {
-    return SizedBox(
-      height: height,
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: _buildQrButton(
-                context,
-                height,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: _buildCalculateButton(
-                context,
-                height,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQrButton(
-      BuildContext context,
-      double height,
-      ) {
-    return Material(
-      color: const Color(0xFF38BDF8),
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
-      shadowColor: const Color(0xFF38BDF8).withValues(
-        alpha: 0.30,
-      ),
-      child: InkWell(
-        onTap: onQrPressed ?? () {},
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: height,
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.qr_code_scanner_rounded,
-                    size: height < 48 ? 22 : 28,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'QR SCANNER',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: height < 48 ? 10 : 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
+        // ROWS 2 + 3
+        Expanded(
+          flex: 2,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildNumberCell(context, '7'),
                     ),
-                  ),
-                ],
+                    SizedBox(height: spacing),
+                    Expanded(
+                      child: _buildNumberCell(context, '4'),
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              SizedBox(width: spacing),
+
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildNumberCell(context, '8'),
+                    ),
+                    SizedBox(height: spacing),
+                    Expanded(
+                      child: _buildNumberCell(context, '5'),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(width: spacing),
+
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildNumberCell(context, '9'),
+                    ),
+                    SizedBox(height: spacing),
+                    Expanded(
+                      child: _buildNumberCell(context, '6'),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(width: spacing),
+
+              Expanded(
+                child: _buildPlusButton(context),
+              ),
+            ],
           ),
+        ),
+
+        SizedBox(height: spacing),
+
+        // ROW 4
+        Expanded(
+          child: Row(
+            children: [
+              _buildNumberCell(context, '1'),
+              SizedBox(width: spacing),
+              _buildNumberCell(context, '2'),
+              SizedBox(width: spacing),
+              _buildNumberCell(context, '3'),
+              SizedBox(width: spacing),
+              _buildBackspaceCell(context),
+            ],
+          ),
+        ),
+
+        SizedBox(height: spacing),
+
+        // ROW 5
+        Expanded(
+          child: Row(
+            children: [
+              _buildNumberCell(context, '0'),
+              SizedBox(width: spacing),
+              _buildNumberCell(context, '.'),
+              SizedBox(width: spacing),
+              Expanded(
+                flex: 2,
+                child: _buildCalculateButton(context),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberCell(
+      BuildContext context,
+      String label,
+      ) {
+    return Expanded(
+      child: _buildButton(
+        context,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        onPressed: () => onButtonPressed(label),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOperatorCell(
+      BuildContext context,
+      String label, {
+        bool isAc = false,
+      }) {
+    return Expanded(
+      child: _buildButton(
+        context,
+        backgroundColor: isAc
+            ? const Color(0xFFEF4444)
+            : const Color(0xFF1A2A6C),
+        foregroundColor: isAc
+            ? Colors.white
+            : const Color(0xFFFFF8E7),
+        onPressed: () => onButtonPressed(
+          isAc ? 'CLEAR' : label,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isAc
+                ? Colors.white
+                : const Color(0xFFFFF8E7),
+            fontSize: isAc ? 20 : 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlusButton(
+      BuildContext context,
+      ) {
+    return _buildButton(
+      context,
+      backgroundColor: const Color(0xFF1A2A6C),
+      foregroundColor: const Color(0xFFFFF8E7),
+      onPressed: () => onButtonPressed('+'),
+      child: const Text(
+        '+',
+        style: TextStyle(
+          color: Color(0xFFFFF8E7),
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackspaceCell(
+      BuildContext context,
+      ) {
+    return Expanded(
+      child: _buildButton(
+        context,
+        backgroundColor: const Color(0xFF1A2A6C),
+        foregroundColor: Colors.white,
+        onPressed: () => onButtonPressed('⌫'),
+        child: const Icon(
+          Icons.backspace_outlined,
+          color: Colors.white,
+          size: 26,
         ),
       ),
     );
@@ -256,30 +270,21 @@ class CalculatorKeyboard extends StatelessWidget {
 
   Widget _buildCalculateButton(
       BuildContext context,
-      double height,
       ) {
-    return SizedBox(
-      height: height,
-      child: ElevatedButton(
-        onPressed: () => onButtonPressed('='),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF10B981),
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: EdgeInsets.zero,
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'CALCULATE',
-            style: TextStyle(
-              fontSize: height < 48 ? 18 : 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.4,
-            ),
+    return _buildButton(
+      context,
+      backgroundColor: const Color(0xFF10B981),
+      foregroundColor: Colors.white,
+      onPressed: () => onButtonPressed('='),
+      child: const FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          'CALCULATE',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 21,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
           ),
         ),
       ),
@@ -287,71 +292,135 @@ class CalculatorKeyboard extends StatelessWidget {
   }
 
   Widget _buildButton(
-      BuildContext context,
-      String label,
-      double height, {
-        bool isPrimary = false,
+      BuildContext context, {
+        required Color backgroundColor,
+        required Color foregroundColor,
+        required VoidCallback onPressed,
+        required Widget child,
       }) {
-    if (label == 'AC') {
-      return SizedBox(
-        height: height,
-        child: ElevatedButton(
-          onPressed: () => onButtonPressed('CLEAR'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFEF4444),
-            foregroundColor: Colors.white,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            padding: EdgeInsets.zero,
+    return SizedBox.expand(
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 2,
+        shadowColor: Colors.black.withValues(
+          alpha: 0.10,
+        ),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(16),
+          child: Center(
+            child: child,
           ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              'AC',
-              style: TextStyle(
-                fontSize: height < 48 ? 16 : 20,
-                fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigation(
+      BuildContext context,
+      ) {
+    return SizedBox(
+      height: 82,
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildNavigationItem(
+              icon: Icons.home_rounded,
+              label: 'Home',
+              isSelected: true,
+              onPressed: onHomePressed,
+            ),
+          ),
+
+          Expanded(
+            child: _buildQrNavigationItem(context),
+          ),
+
+          Expanded(
+            child: _buildNavigationItem(
+              icon: Icons.history_outlined,
+              label: 'HISTORY',
+              isSelected: false,
+              onPressed: onHistoryPressed,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback? onPressed,
+  }) {
+    final Color color = isSelected
+        ? const Color(0xFF1A2A6C)
+        : const Color(0xFF64748B);
+
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 27,
+            color: color,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrNavigationItem(
+      BuildContext context,
+      ) {
+    return InkWell(
+      onTap: onQrPressed,
+      borderRadius: BorderRadius.circular(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1A2A6C),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.qr_code_2_rounded,
+                color: Colors.white,
+                size: 34,
               ),
             ),
           ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: height,
-      child: ElevatedButton(
-        onPressed: () => onButtonPressed(label),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary
-              ? const Color(0xFF1A2A6C)
-              : Theme.of(context).colorScheme.surface,
-          foregroundColor: isPrimary
-              ? Colors.white
-              : Theme.of(context).colorScheme.onSurface,
-          elevation: isPrimary ? 2 : 0,
-          side: isPrimary
-              ? null
-              : BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: EdgeInsets.zero,
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            label,
+          const SizedBox(height: 2),
+          const Text(
+            'QR SCANNER',
             style: TextStyle(
-              fontSize: height < 48 ? 20 : 25,
-              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A2A6C),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
             ),
           ),
-        ),
+        ],
       ),
     );
   }

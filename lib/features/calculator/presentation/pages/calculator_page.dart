@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../qr/presentation/pages/qr_payment_page.dart';
 import '../../domain/services/calculator_service.dart';
 import '../../domain/services/mdr_calculator_service.dart';
@@ -101,6 +103,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
+  void _openProfile() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Profile coming soon.'),
+        ),
+      );
+  }
+
   String _formatResult(double value) {
     if (value == value.truncateToDouble()) {
       return value.toInt().toString();
@@ -111,24 +123,131 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('MDR Kitna Hua'),
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFF1A2A6C),
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            CalculatorDisplay(
-              expression: _expression,
-              result: _displayResult,
+    );
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: const Color(0xFF1A2A6C),
+            child: SafeArea(
+              bottom: false,
+              child: _buildHeader(context),
             ),
-            Expanded(
-              child: CalculatorKeyboard(
-                onButtonPressed: _handleButtonPressed,
-                onQrPressed: _openQrPaymentPage,
+          ),
+
+          CalculatorDisplay(
+            expression: _expression,
+            result: _displayResult,
+          ),
+
+          Expanded(
+            child: CalculatorKeyboard(
+              onButtonPressed: _handleButtonPressed,
+              onQrPressed: _openQrPaymentPage,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        12,
+      ),
+      child: Row(
+        children: [
+          _buildAppLogo(),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'MDR',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                const Text(
+                  'Kitna Hua',
+                  style: TextStyle(
+                    color: Color(0xFFD4AF37),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          _buildProfileButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppLogo() {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: SvgPicture.asset(
+        'assets/icons/MDR-Kitna-Hua_logo.svg',
+        width: 48,
+        height: 48,
+        fit: BoxFit.contain,
+        colorFilter: const ColorFilter.mode(
+          Colors.white,
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileButton() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _openProfile,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withValues(
+                alpha: 0.85,
               ),
+              width: 1.5,
             ),
-          ],
+          ),
+          child: const Icon(
+            Icons.person_outline_rounded,
+            color: Colors.white,
+            size: 27,
+          ),
         ),
       ),
     );
