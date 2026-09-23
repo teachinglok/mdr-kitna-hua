@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../upi/data/datasources/upi_local_data_source.dart';
+import '../../../upi/data/repositories/upi_repository_impl.dart';
+import '../../../upi/domain/services/upi_service.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../qr/presentation/pages/qr_payment_page.dart';
@@ -9,13 +13,36 @@ import '../widgets/calculator_display.dart';
 import '../widgets/calculator_keyboard.dart';
 
 class CalculatorPage extends StatefulWidget {
-  const CalculatorPage({super.key});
+  final String shopName;
+
+  const CalculatorPage({
+    super.key,
+    required this.shopName,
+  });
 
   @override
   State<CalculatorPage> createState() => _CalculatorPageState();
 }
 
 class _CalculatorPageState extends State<CalculatorPage> {
+  late String _shopName;
+  late final UpiRepositoryImpl _upiRepository;
+  @override
+  void initState() {
+    super.initState();
+
+    _shopName = widget.shopName;
+
+    final UpiLocalDataSource dataSource =
+    UpiLocalDataSource();
+
+    final UpiService service = UpiService();
+
+    _upiRepository = UpiRepositoryImpl(
+      localDataSource: dataSource,
+      upiService: service,
+    );
+  }
   final CalculatorService _calculatorService =
   const CalculatorService();
 
@@ -98,19 +125,32 @@ class _CalculatorPageState extends State<CalculatorPage> {
       MaterialPageRoute(
         builder: (context) => QrPaymentPage(
           amount: _customerPayableAmount,
+          shopName: _shopName,
+          repository: _upiRepository,
         ),
       ),
     );
   }
 
-  void _openProfile() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Profile coming soon.'),
+  Future<void> _openProfile() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProfilePage(
+          shopName: _shopName,
+          email: 'merchant@example.com',
+          repository: _upiRepository,
+          onShopNameChanged: (updatedShopName) {
+            if (!mounted) {
+              return;
+            }
+
+            setState(() {
+              _shopName = updatedShopName;
+            });
+          },
         ),
-      );
+      ),
+    );
   }
 
   String _formatResult(double value) {
@@ -226,6 +266,12 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   Widget _buildProfileButton() {
+    final String shopName = _shopName.trim();
+
+    final String initial = shopName.isEmpty
+        ? '?'
+        : shopName[0].toUpperCase();
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -236,20 +282,25 @@ class _CalculatorPageState extends State<CalculatorPage> {
           height: 46,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
+            color: const Color(0xFF1A2A6C),
             border: Border.all(
-              color: Colors.white.withValues(
-                alpha: 0.85,
-              ),
+              color: const Color(0xFFD4AF37),
               width: 1.5,
             ),
           ),
-          child: const Icon(
-            Icons.person_outline_rounded,
-            color: Colors.white,
-            size: 27,
+          child: Center(
+            child: Text(
+              initial,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 }
+

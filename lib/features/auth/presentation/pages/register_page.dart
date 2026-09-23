@@ -5,7 +5,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/google_sign_in_button.dart';
 
 class RegisterPage extends StatefulWidget {
-  final VoidCallback? onRegistered;
+  final ValueChanged<String>? onRegistered;
 
   const RegisterPage({
     super.key,
@@ -105,7 +105,9 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    widget.onRegistered?.call();
+    widget.onRegistered?.call(
+      _businessNameController.text.trim(),
+    );
   }
 
   Future<void> _showRegistrationSuccess() async {
@@ -180,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 14),
                   const Text(
-                    'Opening your home...',
+                    'Let’s get started!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFF1A2A6C),
@@ -451,47 +453,52 @@ class _RegisterPageState extends State<RegisterPage> {
     return Container(
       width: double.infinity,
       color: const Color(0xFF1A2A6C),
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         20,
-        18,
+        statusBarHeight + 8,
         20,
-        22,
+        16,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+          SizedBox(
+            width: 48,
+            height: 48,
             child: Image.asset(
               'assets/icons/MDR Kitna Hua_icon.png',
-              width: 58,
-              height: 58,
-              fit: BoxFit.cover,
+              width: 48,
+              height: 48,
+              fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(width: 14),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'MDR',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'MDR',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                  ),
                 ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                'Kitna Hua',
-                style: TextStyle(
-                  color: Color(0xFFD4AF37),
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
+                SizedBox(height: 3),
+                Text(
+                  'Kitna Hua',
+                  style: TextStyle(
+                    color: Color(0xFFD4AF37),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    height: 1.0,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

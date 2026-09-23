@@ -60,14 +60,53 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  void _openCalculator() {
+  void _openCalculator(String shopName) {
     if (!mounted) {
       return;
     }
 
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => const CalculatorPage(),
+      PageRouteBuilder(
+        pageBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            ) {
+          return CalculatorPage(
+            shopName: shopName,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 250),
+        transitionsBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+            ) {
+          final Animation<double> fadeAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOut,
+          );
+
+          final Animation<Offset> slideAnimation = Tween<Offset>(
+            begin: const Offset(0, 0.025),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            ),
+          );
+
+          return FadeTransition(
+            opacity: fadeAnimation,
+            child: SlideTransition(
+              position: slideAnimation,
+              child: child,
+            ),
+          );
+        },
       ),
           (route) => false,
     );
