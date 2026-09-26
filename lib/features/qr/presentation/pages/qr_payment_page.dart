@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../upi/data/repositories/upi_repository_impl.dart';
 import '../../../upi/domain/entities/merchant_upi.dart';
+import '../../../upi/presentation/pages/add_upi_page.dart';
 import '../../../upi/presentation/widgets/upi_dropdown.dart';
 
 class QrPaymentPage extends StatefulWidget {
@@ -56,6 +57,8 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
           _selectedUpi = defaultUpi;
         } else if (usableUpis.isNotEmpty) {
           _selectedUpi = usableUpis.first;
+        } else {
+          _selectedUpi = null;
         }
 
         _isLoading = false;
@@ -71,6 +74,58 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
 
       _showMessage(
         'Unable to load your UPI accounts.',
+      );
+    }
+  }
+
+  Future<void> _openAddUpiPage() async {
+    final List<MerchantUpi> existingUpis =
+    await widget.repository.getUpiAccounts();
+
+    if (!mounted) {
+      return;
+    }
+
+    final MerchantUpi? newUpi =
+    await Navigator.of(context).push<MerchantUpi>(
+      MaterialPageRoute(
+        builder: (_) => AddUpiPage(
+          currentUpiCount: existingUpis.length,
+        ),
+      ),
+    );
+
+    if (newUpi == null || !mounted) {
+      return;
+    }
+
+    try {
+      final MerchantUpi savedUpi =
+      await widget.repository.addUpi(newUpi);
+
+      await _loadUpis();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedUpi = savedUpi;
+        _qrGenerated = false;
+      });
+
+      _showMessage(
+        '${savedUpi.upiId} added successfully.',
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(
+        error is StateError
+            ? error.message
+            : 'Unable to add your UPI ID.',
       );
     }
   }
@@ -137,10 +192,6 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
           content: Text(message),
         ),
       );
-  }
-
-  void _openUpiSettings() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -222,8 +273,7 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
                       backgroundColor:
                       const Color(0xFF1A2A6C),
                       foregroundColor: Colors.white,
-                      shape:
-                      RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius:
                         BorderRadius.circular(14),
                       ),
@@ -258,6 +308,8 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
         ),
       ),
       child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Text(
             'CUSTOMER PAYS',
@@ -398,7 +450,7 @@ class _QrPaymentPageState extends State<QrPaymentPage> {
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
-              onPressed: _openUpiSettings,
+              onPressed: _openAddUpiPage,
               icon: const Icon(
                 Icons.add_rounded,
               ),
