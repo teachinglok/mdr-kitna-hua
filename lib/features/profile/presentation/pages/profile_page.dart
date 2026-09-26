@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'total_collection_page.dart';
 import '../../../gift_cards/presentation/pages/gift_cards_page.dart';
 import '../../../upi/data/repositories/upi_repository_impl.dart';
 import '../../../upi/presentation/pages/upi_settings_page.dart';
@@ -246,7 +247,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: Icons.payments_outlined,
                     title: 'Total Collection',
                     subtitle: 'Last 24 hours',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TotalCollectionPage(),
+                        ),
+                      );
+                    },
                   ),
 
                   ProfileMenuTile(

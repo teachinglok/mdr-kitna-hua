@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../transactions/presentation/pages/history_page.dart';
 import '../../../upi/data/datasources/upi_local_data_source.dart';
 import '../../../upi/data/repositories/upi_repository_impl.dart';
 import '../../../upi/domain/services/upi_service.dart';
@@ -131,6 +132,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
       ),
     );
   }
+  void _openHistoryPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const HistoryPage(),
+      ),
+    );
+  }
 
   Future<void> _openProfile() async {
     await Navigator.of(context).push(
@@ -193,6 +201,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
             child: CalculatorKeyboard(
               onButtonPressed: _handleButtonPressed,
               onQrPressed: _openQrPaymentPage,
+              onHistoryPressed: _openHistoryPage,
             ),
           ),
         ],
